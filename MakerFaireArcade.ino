@@ -84,6 +84,7 @@ CHSV buttonColors[] = {
 #include "ball.h"
 #include "juggle.h"
 #include "launcher.h"
+#include "colorInvaders.h"
 
 void setup() {
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
@@ -127,8 +128,9 @@ void loop() {
 
   //  pulse();
   //  add();
-  juggle();
+  //  juggle();
   //  launcher();
+  colorInvaders();
 
   FastLED.show();
 }
