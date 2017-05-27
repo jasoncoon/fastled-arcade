@@ -42,7 +42,7 @@ void test_for_missile_hit(void) {
   }
 }
 
-uint32_t colorInvaders()
+void colorInvaders()
 {
   if (invaders[0]) {
     // player explodes
@@ -66,7 +66,7 @@ uint32_t colorInvaders()
 
     invader_speed = invader_default_speed;
 
-    return 0;
+    return;
   }
 
   fill_solid(leds, NUM_LEDS, CRGB::Black);
@@ -174,5 +174,5 @@ uint32_t colorInvaders()
     if (explosion < NUM_LEDS - 1) leds[explosion + 1] += CRGB(24, 24, 24);
   }
 
-  return 0;
+  return;
 }
