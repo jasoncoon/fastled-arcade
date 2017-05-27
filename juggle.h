@@ -1,70 +1,80 @@
 void juggle() {
-  static bool ballLoaded = false;
-  static bool ballVisible = false;
-  static float ballPosition = 0;
-  static float ballVelocity = 0;
-  CRGB ballColor = CRGB::Red;
+  static Ball balls[5];
 
-  static ulong ballDropTime = 0;
+  const float velocityDecay = 0.0036;
 
-  static ulong ballLaunchTime = 0;
-
-  const float ballVelocityDecay = 0.0036;
-
-  const float maxCatchDiff = 100;
+  const float maxCatchDiff = 200;
 
   fadeToBlackBy(leds, NUM_LEDS, 20);
   //  FastLED.clear();
 
-  if (!ballLoaded) {
-    ballLaunchTime = millis() + 1000;
-    ballLoaded = true;
-  }
+  static uint8_t activeBallCount = 1;
 
-  if (ballLoaded && !ballVisible && millis() >= ballLaunchTime) {
-    ballVisible = true;
-    ballLoaded = true;
-    ballPosition = 0;
-    ballVelocity = 1.0;
-  }
+  bool allActiveBallsCaught = false;
 
-  if (!ballVisible) {
-    return;
-  }
+  for (uint8_t i = 0; i < activeBallCount; i++) {
+    if (!balls[i].visible && !balls[i].loaded) {
+      balls[i].launchTime = millis() + 1000;
+      balls[i].loaded = true;
+      balls[i].position = 0;
+    }
 
-  ballPosition += ballVelocity;
+    if (balls[i].loaded && millis() >= balls[i].launchTime) {
+      balls[i].visible = true;
+      balls[i].loaded = false;
+      balls[i].position = 0;
+      balls[i].velocity = 1.0;
+    }
 
-  ballVelocity -= ballVelocityDecay;
+    if (!balls[i].visible) {
+      return;
+    }
 
-  if (ballPosition < 0 && ballVisible) {
-    ballDropTime = millis();
-    Serial.print("ball drop time: ");
-    Serial.println(ballDropTime);
-    ballVisible = false;
-    ballLoaded = false;
-//    ballPosition = 0;
-  }
+    balls[i].position += balls[i].velocity;
 
-  if (ballPosition < 0) {
-    long diff = abs(ballDropTime - buttonPressTimes[0]);
-    Serial.print("diff: ");
-    Serial.println(diff);
-    if (diff < maxCatchDiff) {
-      // ball caught, relaunch it
-      ballVisible = true;
-      ballLoaded = true;
-      ballPosition = 0;
-      ballVelocity = 1.0;
+    balls[i].velocity -= velocityDecay;
+
+    if (balls[i].position < 0) {
+      balls[i].dropTime = millis();
+      Serial.print("ball drop time: ");
+      Serial.println(balls[i].dropTime);
+
+      long diff = balls[i].dropTime - buttonPressTimes[i];
+      Serial.print("diff: ");
+      Serial.println(diff);
+
+      if (diff < maxCatchDiff) {
+        // ball caught, relaunch it
+        balls[i].visible = true;
+        balls[i].position = 0;
+        balls[i].velocity = 1.0;
+
+        if (i == activeBallCount - 1) {
+          allActiveBallsCaught = true;
+        }
+      }
+      else {
+        for (uint8_t j = 0; j < 5; j++) {
+          balls[j].visible = false;
+          balls[j].loaded = false;
+          balls[i].position = 0;
+        }
+        activeBallCount = 1;
+      }
+    }
+
+    if (balls[i].position >= NUM_LEDS) {
+      balls[i].velocity *= -1.0;
+      balls[i].position = NUM_LEDS - 1;
+    }
+
+    if (balls[i].position > 0 && balls[i].position < NUM_LEDS) {
+      leds[(uint8_t) balls[i].position] += buttonColors[i];
     }
   }
 
-  if (ballPosition >= NUM_LEDS) {
-    ballVelocity *= -1.0;
-    ballPosition = NUM_LEDS - 1;
-  }
-
-  if (ballPosition > 0 && ballPosition < NUM_LEDS) {
-    leds[(uint8_t) ballPosition] += ballColor;
+  if (allActiveBallsCaught && activeBallCount < 5) {
+    activeBallCount++;
   }
 }
 

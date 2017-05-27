@@ -1,6 +1,5 @@
 void launcher() {
-  static float ballPosition[5];
-  static float ballVelocity[5];
+  static Ball balls[5];
 
   const float ballVelocityDecay = 0.0036;
 
@@ -8,23 +7,23 @@ void launcher() {
 
   for (uint8_t i = 0; i < 5; i++) {
     if (buttonChanged[i]) {
-      if (buttons[i].fell() && ballPosition[i] < 0) {
-        ballPosition[i] = 0;
-        ballVelocity[i] = 1.0;
+      if (buttons[i].fell() && balls[i].position < 0) {
+        balls[i].position = 0;
+        balls[i].velocity = 1.0;
       }
     }
 
-    if (ballPosition[i] >= 0) {
-      ballPosition[i] += ballVelocity[i];
+    if (balls[i].position >= 0) {
+      balls[i].position += balls[i].velocity;
 
-      ballVelocity[i] -= ballVelocityDecay;
+      balls[i].velocity -= ballVelocityDecay;
 
-      if (ballPosition[i] >= NUM_LEDS) {
-        ballVelocity[i] *= -1.0;
-        ballPosition[i] = NUM_LEDS - 1;
+      if (balls[i].position >= NUM_LEDS) {
+        balls[i].velocity *= -1.0;
+        balls[i].position = NUM_LEDS - 1;
       }
       
-      leds[(uint8_t) ballPosition[i]] += buttonColors[i];
+      leds[(uint8_t) balls[i].position] += buttonColors[i];
     }
   }
 }

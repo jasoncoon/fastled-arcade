@@ -81,6 +81,7 @@ CHSV buttonColors[] = {
   CHSV(0, 0, 128),
 };
 
+#include "ball.h"
 #include "juggle.h"
 #include "launcher.h"
 
@@ -88,7 +89,7 @@ void setup() {
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   FastLED.setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
-//  FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
+  //  FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
 
   for (uint8_t i = 0; i < buttonCount; i++) {
     pinMode(ledPins[i], OUTPUT);
@@ -126,8 +127,8 @@ void loop() {
 
   //  pulse();
   //  add();
-  //  juggle();
-  launcher();
+  juggle();
+  //  launcher();
 
   FastLED.show();
 }
