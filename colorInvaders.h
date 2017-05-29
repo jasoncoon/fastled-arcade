@@ -15,6 +15,9 @@ uint16_t invader_default_speed = 64;
 /* Speed of the invader - gradually reduces */
 uint16_t invader_speed = invader_default_speed;
 
+const byte max_invader_speed = 25;
+const byte invader_acceleration = 2;
+
 byte invaders[NUM_LEDS];
 byte invaders_colours[NUM_LEDS];
 byte missile = 0;
@@ -35,8 +38,10 @@ void test_for_missile_hit(void) {
       invaders[missile] = 0;
       explosion = missile;
       explosion_count = EXPLOSION_DELAY;
-      if (invader_speed > 50)
-        invader_speed -= 8;
+      if (invader_speed > max_invader_speed) {
+        invader_speed -= invader_acceleration;
+        Serial.print("invader_speed:" ); Serial.println(invader_speed);
+      }
     }
     missile = 0;
   }
@@ -159,19 +164,19 @@ void colorInvaders()
   *********************************************/
   if (explosion_count > EXPLOSION_DELAY * 3 / 4) {
     explosion_count--;
-    leds[explosion] += CRGB(48, 48, 48);
+    leds[explosion] += CHSV(0, 0, 255);
   }
   else if (explosion_count > EXPLOSION_DELAY / 2) {
     explosion_count--;
-    if (explosion > 1) leds[explosion - 1] += CRGB(48, 48, 48);
+    if (explosion > 1) leds[explosion - 1] += CHSV(0, 0, 255);
     leds[explosion] += CRGB(96, 96, 96);
-    if (explosion < NUM_LEDS - 1) leds[explosion + 1] += CRGB(48, 48, 48);
+    if (explosion < NUM_LEDS - 1) leds[explosion + 1] += CHSV(0, 0, 255);
   }
   else if (explosion_count > 0) {
     explosion_count--;
-    if (explosion > 1) leds[explosion - 1] += CRGB(24, 24, 24);
+    if (explosion > 1) leds[explosion - 1] += CHSV(0, 0, 128);
     leds[explosion] += CRGB(48, 48, 48);
-    if (explosion < NUM_LEDS - 1) leds[explosion + 1] += CRGB(24, 24, 24);
+    if (explosion < NUM_LEDS - 1) leds[explosion + 1] += CHSV(0, 0, 255);
   }
 
   return;

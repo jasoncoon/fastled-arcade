@@ -5,5 +5,6 @@ struct Ball {
   bool visible;
   ulong launchTime;
   ulong dropTime;
-  CRGB color;
+  CHSV color;
+  uint8_t exploding;
 };

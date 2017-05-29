@@ -26,45 +26,31 @@ InputCommand command;
 
 const uint8_t brightnessCount = 5;
 uint8_t brightnessMap[brightnessCount] = { 16, 32, 64, 128, 255 };
-uint8_t brightness = brightnessMap[brightnessCount - 1];
+uint8_t brightness = 255;
 
 const uint8_t buttonCount = 5;
 
-const uint8_t buttonRedPin    =  7;
-const uint8_t buttonGreenPin  =  8;
-const uint8_t buttonBluePin   =  9;
-const uint8_t buttonYellowPin = 10;
-const uint8_t buttonWhitePin  = 11;
+uint8_t buttonPins[] = {
+  7,  // red
+  8,  // green
+  9,  // blue
+  10, // yellow
+  11, // white
+};
 
-const uint8_t ledRedPin    = 0;
-const uint8_t ledGreenPin  = 1;
-const uint8_t ledBluePin   = 4;
-const uint8_t ledYellowPin = 5;
-const uint8_t ledWhitePin  = 6;
+uint8_t ledPins[] = { 
+  0, // red
+  1, // green
+  4, // blue
+  5, // yellow
+  6, // white
+};
 
 Bounce buttonRed = Bounce();
 Bounce buttonGreen = Bounce();
 Bounce buttonBlue = Bounce();
 Bounce buttonYellow = Bounce();
 Bounce buttonWhite = Bounce();
-
-uint8_t currentPatternIndex = 0;
-
-uint8_t buttonPins[] = {
-  buttonRedPin,
-  buttonGreenPin,
-  buttonBluePin,
-  buttonYellowPin,
-  buttonWhitePin,
-};
-
-uint8_t ledPins[] = {
-  ledRedPin,
-  ledGreenPin,
-  ledBluePin,
-  ledYellowPin,
-  ledWhitePin,
-};
 
 Bounce buttons[] = {
   buttonRed,
@@ -87,11 +73,11 @@ String buttonNames[] = {
 };
 
 CHSV buttonColors[] = {
-  CHSV(0, 255, 128),
-  CHSV(96, 255, 128),
-  CHSV(160, 255, 128),
-  CHSV(64, 255, 128),
-  CHSV(0, 0, 128),
+  CHSV(0, 255, 128),   // red
+  CHSV(96, 255, 128),  // green
+  CHSV(160, 255, 128), // blue
+  CHSV(64, 255, 128),  // yellow
+  CHSV(0, 0, 128),     // white
 };
 
 #include "ball.h"
@@ -99,6 +85,8 @@ CHSV buttonColors[] = {
 #include "launcher.h"
 #include "colorInvaders.h"
 #include "simon.h"
+#include "shooter.h"
+#include "fireworks.h"
 
 void pulse() {
   shiftDown();
@@ -127,12 +115,14 @@ void add() {
 // List of modes.  Each is defined as a separate function below.
 typedef void (*SimpleModeList[])();
 SimpleModeList modes = {
+  fireworks,
   launcher,
   pulse,
   add,
   colorInvaders,
   simon,
   juggle,
+  shooter,
 };
 
 uint8_t currentModeIndex = 0; // Index number of which mode is current
@@ -167,6 +157,8 @@ void setup() {
 }
 
 void loop() {
+  random16_add_entropy(random());
+
   for (uint8_t i = 0; i < buttonCount; i++) {
     buttonChanged[i] = buttons[i].update();
     if (buttonChanged[i]) {
