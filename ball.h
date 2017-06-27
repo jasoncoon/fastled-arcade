@@ -3,8 +3,8 @@ struct Ball {
   float velocity;
   bool loaded;
   bool visible;
-  ulong launchTime;
-  ulong dropTime;
+  unsigned long launchTime;
+  unsigned long dropTime;
   CHSV color;
   uint8_t exploding;
 };

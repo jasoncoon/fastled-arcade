@@ -40,7 +40,8 @@ void test_for_missile_hit(void) {
       explosion_count = EXPLOSION_DELAY;
       if (invader_speed > max_invader_speed) {
         invader_speed -= invader_acceleration;
-        Serial.print("invader_speed:" ); Serial.println(invader_speed);
+        // Serial.print("invader_speed:" );
+        // Serial.println(invader_speed);
       }
     }
     missile = 0;
@@ -49,6 +50,16 @@ void test_for_missile_hit(void) {
 
 void colorInvaders()
 {
+  if (modeInit) {
+    modeInit = false;
+
+    // game resets
+    for (int i = 0; i < NUM_LEDS; i++)
+      invaders[i] = 0;
+
+    invader_speed = invader_default_speed;
+  }
+
   if (invaders[0]) {
     // player explodes
     while (leds[0] != CRGB(CRGB::White)) {
@@ -86,7 +97,7 @@ void colorInvaders()
 
   bool fired = false;
 
-  for (uint8_t i = 0; i < 5; i++) {
+  for (uint8_t i = 0; i < buttonCount; i++) {
     if (buttonChanged[i] && buttons[i].fell()) {
       playerHue = buttonColors[i].hue;
       fired = true;

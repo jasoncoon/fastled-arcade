@@ -4,8 +4,17 @@ void fireworks() {
   const float ballVelocityDecay = 0.0036;
   const uint8_t explosionSteps = 64;
 
-  fadeToBlackBy(leds, NUM_LEDS, 10);
+  fadeToBlackBy(leds, NUM_LEDS, 5);
 
+  if(modeInit) {
+    modeInit = false;
+    
+    for (uint8_t i = 0; i < buttonCount; i++) {
+      balls[i].position = -1;
+      balls[i].exploding = 0;
+    }
+  }
+  
   for (uint8_t i = 0; i < buttonCount; i++) {
     // check input
     if (buttonChanged[i]) {
@@ -39,7 +48,7 @@ void fireworks() {
 
       // draw
       if (exploding < 1) {
-        leds[(uint8_t) balls[i].position] += CHSV(0, 0, 32);
+        leds[(uint8_t) balls[i].position] += CHSV(0, 0, 16);
       }
       else if (exploding == 1) {
         leds[(uint8_t) balls[i].position] += CRGB::White;

@@ -23,14 +23,17 @@ void simon()
     return;
 
   if (reset || pausingBetweenSequence || pausingBeforeSequence) {
-    for (byte i = 0; i < 5; i++) {
+    for (byte i = 0; i < buttonCount; i++) {
       digitalWrite(ledPins[i], LOW);
     }
   }
 
-  if (reset) {
+  if (modeInit || reset) {
+    modeInit = false;
+    reset = false;
+
     for (int i = 0; i < 255; i++) {
-      sequence[i] = random8(0, 4);
+      sequence[i] = random8(0, buttonCount);
     }
 
     sequenceLength = 1;
@@ -38,8 +41,6 @@ void simon()
 
     playingSequence = true;
     pausingBetweenSequence = true;
-
-    reset = false;
 
     fill_solid(leds, NUM_LEDS, CRGB::Black);
 
@@ -74,7 +75,7 @@ void simon()
     sequenceIndex++;
     fill_solid(leds, NUM_LEDS, sequenceColor);
 
-    for (byte i = 0; i < 5; i++) {
+    for (byte i = 0; i < buttonCount; i++) {
       if (CHSV(buttonColors[i].hue, 255, 255) == sequenceColor) {
         digitalWrite(ledPins[i], HIGH);
         break;
@@ -89,7 +90,7 @@ void simon()
   bool buttonPressed = false;
   CRGB colorPressed = CRGB::Black;
 
-  for (uint8_t i = 0; i < 5; i++) {
+  for (uint8_t i = 0; i < buttonCount; i++) {
     if (buttonChanged[i] && buttons[i].fell()) {
       buttonPressed = true;
       colorPressed = CHSV(buttonColors[i].hue, 255, 255);

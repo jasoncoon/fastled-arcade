@@ -7,7 +7,7 @@ FASTLED_USING_NAMESPACE
 #define DATA_PIN    2
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
-#define NUM_LEDS    143
+#define NUM_LEDS    144
 
 #define FRAMES_PER_SECOND  120
 
@@ -15,6 +15,7 @@ FASTLED_USING_NAMESPACE
 #define FRAMES_PER_SECOND  120 // here you can control the speed. With the Access Point / Web Server the animations run a bit slower.
 
 #define IR_RECV_PIN 3
+#define MODE_PIN    18
 
 CRGB leds[NUM_LEDS];
 
@@ -23,6 +24,8 @@ IRrecv irReceiver(IR_RECV_PIN);
 #include "irCommands.h"
 
 InputCommand command;
+
+bool modeInit = true;
 
 const uint8_t brightnessCount = 5;
 uint8_t brightnessMap[brightnessCount] = { 16, 32, 64, 128, 255 };
@@ -38,13 +41,15 @@ uint8_t buttonPins[] = {
   11, // white
 };
 
-uint8_t ledPins[] = { 
+uint8_t ledPins[] = {
   0, // red
   1, // green
   4, // blue
   5, // yellow
   6, // white
 };
+
+Bounce buttonMode = Bounce();
 
 Bounce buttonRed = Bounce();
 Bounce buttonGreen = Bounce();
@@ -62,7 +67,7 @@ Bounce buttons[] = {
 
 bool buttonChanged[5];
 
-ulong buttonPressTimes[5];
+unsigned long buttonPressTimes[5];
 
 String buttonNames[] = {
   "Red",
@@ -115,6 +120,7 @@ void add() {
 // List of modes.  Each is defined as a separate function below.
 typedef void (*SimpleModeList[])();
 SimpleModeList modes = {
+  shooter,
   fireworks,
   launcher,
   pulse,
@@ -122,7 +128,6 @@ SimpleModeList modes = {
   colorInvaders,
   simon,
   juggle,
-  shooter,
 };
 
 uint8_t currentModeIndex = 0; // Index number of which mode is current
@@ -132,7 +137,7 @@ uint8_t currentModeIndex = 0; // Index number of which mode is current
 const int modeCount = ARRAY_SIZE(modes);
 
 void setup() {
-  Serial.begin(9600);
+  // Serial.begin(9600);
 
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   FastLED.setCorrection(TypicalLEDStrip);
@@ -143,9 +148,13 @@ void setup() {
     pinMode(ledPins[i], OUTPUT);
   }
 
+  pinMode(MODE_PIN, INPUT_PULLUP);
+    
   for (uint8_t i = 0; i < buttonCount; i++) {
     pinMode(buttonPins[i], INPUT_PULLUP);
   }
+
+  buttonMode.attach(MODE_PIN);
 
   for (uint8_t i = 0; i < buttonCount; i++) {
     buttons[i].attach(buttonPins[i]);
@@ -164,22 +173,24 @@ void loop() {
     if (buttonChanged[i]) {
       buttonPressTimes[i] = millis();
 
-      Serial.print(buttonNames[i]);
+      // Serial.print(buttonNames[i]);
 
-      Serial.print(" button");
+      // Serial.print(" button");
 
       if (buttons[i].fell()) {
-        Serial.print(" pressed time: ");
-        Serial.println(buttonPressTimes[i]);
+        // Serial.print(" pressed time: ");
+        // Serial.println(buttonPressTimes[i]);
         digitalWrite(ledPins[i], HIGH);
       } else {
-        Serial.println(" released");
+        // Serial.println(" released");
         digitalWrite(ledPins[i], LOW);
       }
     }
   }
 
   modes[currentModeIndex]();
+
+  modeInit = false;
 
   FastLED.show();
 
@@ -197,6 +208,8 @@ void moveTo(int index) {
     currentModeIndex = 0;
   else if (currentModeIndex < 0)
     currentModeIndex = modeCount - 1;
+
+  modeInit = true;
 
   fill_solid(leds, NUM_LEDS, CRGB::Black);
 }
@@ -226,11 +239,15 @@ void adjustBrightness(int delta) {
 }
 
 void handleInput() {
+  if(buttonMode.update() && buttonMode.fell())   {
+    move(1);
+  }
+  
   command = readCommand(defaultHoldDelay);
 
   if (command != InputCommand::None) {
-    Serial.print("command: ");
-    Serial.println((int) command);
+    // Serial.print("command: ");
+    // Serial.println((int) command);
   }
 
   if (command == InputCommand::Up) {

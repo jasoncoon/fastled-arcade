@@ -1,5 +1,5 @@
 void juggle() {
-  static Ball balls[5];
+  static Ball balls[buttonCount];
 
   const float velocityDecay = 0.0036;
 
@@ -7,6 +7,16 @@ void juggle() {
 
   fadeToBlackBy(leds, NUM_LEDS, 20);
   //  FastLED.clear();
+
+  if (modeInit) {
+    modeInit = false;
+
+    for (uint8_t i = 0; i < buttonCount; i++) {
+      balls[i].visible = false;
+      balls[i].loaded = false;
+      balls[i].position = 0;
+    }
+  }
 
   static uint8_t activeBallCount = 1;
 
@@ -36,12 +46,12 @@ void juggle() {
 
     if (balls[i].position < 0) {
       balls[i].dropTime = millis();
-      Serial.print("ball drop time: ");
-      Serial.println(balls[i].dropTime);
+      // Serial.print("ball drop time: ");
+      // Serial.println(balls[i].dropTime);
 
       long diff = balls[i].dropTime - buttonPressTimes[i];
-      Serial.print("diff: ");
-      Serial.println(diff);
+      // Serial.print("diff: ");
+    // Serial.println(diff);
 
       if (diff < maxCatchDiff) {
         // ball caught, relaunch it
@@ -54,10 +64,10 @@ void juggle() {
         }
       }
       else {
-        for (uint8_t j = 0; j < 5; j++) {
+        for (uint8_t j = 0; j < buttonCount; j++) {
           balls[j].visible = false;
           balls[j].loaded = false;
-          balls[i].position = 0;
+          balls[j].position = 0;
         }
         activeBallCount = 1;
       }
@@ -73,7 +83,7 @@ void juggle() {
     }
   }
 
-  if (allActiveBallsCaught && activeBallCount < 5) {
+  if (allActiveBallsCaught && activeBallCount < buttonCount) {
     activeBallCount++;
   }
 }

@@ -7,7 +7,14 @@ void launcher() {
 
   fadeToBlackBy(leds, NUM_LEDS, 20);
 
-  for (uint8_t i = 0; i < 5; i++) {
+  if (modeInit) {
+    modeInit = false;
+    for (uint8_t j = 0; j < ballCount; j++) {
+      balls[j].position = -1;
+    }
+  }
+
+  for (uint8_t i = 0; i < buttonCount; i++) {
     if (buttonChanged[i]) {
       if (buttons[i].fell()) {
         for (uint8_t j = 0; j < ballCount; j++) {
